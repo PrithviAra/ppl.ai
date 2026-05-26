@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ppl.ai</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f5f4f0;
+      --surface: #ffffff;
+      --ink: #111111;
+      --ink-muted: #888888;
+      --border: #e8e7e3;
+      --accent: #111111;
+      --accent-hover: #333333;
+      --radius: 14px;
+      --transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+    }
+
+    /* --- Screens --- */
+
+    .screen {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* --- Logo / wordmark --- */
+
+    .wordmark {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 48px;
+    }
+
+    /* --- Heading --- */
+
+    .heading {
+      font-size: clamp(28px, 6vw, 38px);
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .subheading {
+      font-size: 15px;
+      color: var(--ink-muted);
+      font-weight: 400;
+      margin-bottom: 40px;
+      line-height: 1.5;
+    }
+
+    /* --- Day Buttons --- */
+
+    .day-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .day-btn {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 16px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    .day-btn:hover {
+      border-color: var(--ink);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .day-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .day-btn .icon {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    /* --- Goal Buttons --- */
+
+    .goal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .goal-btn {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      letter-spacing: -0.01em;
+    }
+
+    .goal-btn .goal-meta {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--ink-muted);
+      margin-top: 2px;
+      display: block;
+    }
+
+    .goal-btn .arrow {
+      color: var(--ink-muted);
+      font-size: 18px;
+      transition: transform var(--transition);
+    }
+
+    .goal-btn:hover {
+      border-color: var(--ink);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+    }
+
+    .goal-btn:hover .arrow {
+      transform: translateX(3px);
+    }
+
+    .goal-btn:active {
+      transform: translateY(0);
+    }
+
+    /* --- Back button --- */
+
+    .back-btn {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.01em;
+      transition: color var(--transition);
+    }
+
+    .back-btn:hover {
+      color: var(--ink);
+    }
+
+    /* --- Workout Screen --- */
+
+    .workout-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      background: var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    .exercise-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .exercise-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      animation: slideIn 0.3s ease both;
+    }
+
+    .exercise-card:nth-child(1) { animation-delay: 0.04s; }
+    .exercise-card:nth-child(2) { animation-delay: 0.08s; }
+    .exercise-card:nth-child(3) { animation-delay: 0.12s; }
+    .exercise-card:nth-child(4) { animation-delay: 0.16s; }
+    .exercise-card:nth-child(5) { animation-delay: 0.20s; }
+    .exercise-card:nth-child(6) { animation-delay: 0.24s; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .exercise-name {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    .exercise-note {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-top: 2px;
+    }
+
+    .exercise-sets {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-muted);
+      white-space: nowrap;
+      background: var(--bg);
+      padding: 5px 10px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+
+    .tip-card {
+      margin-top: 20px;
+      background: var(--ink);
+      color: #ffffff;
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .tip-card strong {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 6px;
+    }
+
+    /* --- Responsive --- */
+
+    @media (max-width: 400px) {
+      .day-grid {
+        gap: 8px;
+      }
+      .day-btn {
+        padding: 22px 10px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- Screen 1: Day Selection -->
+    <div class="screen active" id="screen-day">
+      <div class="wordmark">ppl.ai</div>
+      <h1 class="heading">What are you<br>training today?</h1>
+      <p class="subheading">Choose your training day to get a personalized workout.</p>
+      <div class="day-grid">
+        <button class="day-btn" onclick="selectDay('push')">
+          <span class="icon">🤜</span>
+          Push
+        </button>
+        <button class="day-btn" onclick="selectDay('pull')">
+          <span class="icon">🤛</span>
+          Pull
+        </button>
+        <button class="day-btn" onclick="selectDay('legs')">
+          <span class="icon">🦵</span>
+          Legs
+        </button>
+      </div>
+    </div>
+
+    <!-- Screen 2: Goal Selection -->
+    <div class="screen" id="screen-goal">
+      <button class="back-btn" onclick="goTo('day')">← Back</button>
+      <div class="wordmark">ppl.ai</div>
+      <h1 class="heading" id="goal-heading"></h1>
+      <p class="subheading">What's your focus today?</p>
+      <div class="goal-list" id="goal-list"></div>
+    </div>
+
+    <!-- Screen 3: Workout -->
+    <div class="screen" id="screen-workout">
+      <button class="back-btn" onclick="goTo('goal')">← Back</button>
+      <div class="wordmark">ppl.ai</div>
+      <div class="workout-tag" id="workout-tag"></div>
+      <h1 class="heading" id="workout-heading"></h1>
+      <p class="subheading" id="workout-sub"></p>
+      <div class="exercise-list" id="exercise-list"></div>
+      <div class="tip-card" id="tip-card"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const GOALS = {
+      push: [
+        { id: 'aesthetics', label: 'Aesthetics',   meta: 'Build size & definition' },
+        { id: 'strength',   label: 'Strength',     meta: 'Move more weight' },
+        { id: 'explosive',  label: 'Explosiveness', meta: 'Power & speed' },
+      ],
+      pull: [
+        { id: 'aesthetics', label: 'Aesthetics',   meta: 'Build size & definition' },
+        { id: 'strength',   label: 'Strength',     meta: 'Move more weight' },
+        { id: 'explosive',  label: 'Explosiveness', meta: 'Power & speed' },
+      ],
+      legs: [
+        { id: 'strength',   label: 'Strength',     meta: 'Move more weight' },
+        { id: 'explosive',  label: 'Explosiveness', meta: 'Power & speed' },
+        { id: 'endurance',  label: 'Endurance',    meta: 'Last longer, go further' },
+      ],
+    };
+
+    const WORKOUTS = {
+      push: {
+        aesthetics: {
+          tag: 'Push · Aesthetics',
+          heading: 'Chest, Shoulders\n& Triceps',
+          sub: 'Moderate weight, controlled reps. Focus on the squeeze at the top of every movement.',
+          exercises: [
+            { name: 'Flat Bench Press',         sets: '4 × 10', note: 'Full range of motion' },
+            { name: 'Incline Dumbbell Press',   sets: '3 × 12', note: 'Slow 3-sec lowering' },
+            { name: 'Cable Chest Fly',          sets: '3 × 15', note: 'Keep a slight bend in elbows' },
+            { name: 'Seated Overhead Press',    sets: '3 × 10', note: 'Brace your core' },
+            { name: 'Lateral Raises',           sets: '4 × 15', note: 'Lead with elbows, light weight' },
+            { name: 'Tricep Rope Pushdown',     sets: '3 × 15', note: 'Fully extend at bottom' },
+          ],
+          tip: 'Rest 60–90 s between sets. Prioritize feeling the muscle over lifting heavy.',
+        },
+        strength: {
+          tag: 'Push · Strength',
+          heading: 'Chest, Shoulders\n& Triceps',
+          sub: 'Heavy compounds first. Keep reps low and rest long so you can push maximum weight.',
+          exercises: [
+            { name: 'Flat Bench Press',         sets: '5 × 5',  note: '85–90% of your max' },
+            { name: 'Overhead Press (Barbell)', sets: '5 × 5',  note: 'Strict form, no leg drive' },
+            { name: 'Incline Barbell Press',    sets: '3 × 6',  note: 'Controlled descent' },
+            { name: 'Weighted Dips',            sets: '3 × 6',  note: 'Add weight if bodyweight is easy' },
+            { name: 'Close-Grip Bench Press',   sets: '3 × 8',  note: 'Elbows tucked' },
+          ],
+          tip: 'Rest 3–4 min between heavy sets. Record your weights and aim to add 2.5 kg every week or two.',
+        },
+        explosive: {
+          tag: 'Push · Explosiveness',
+          heading: 'Chest, Shoulders\n& Triceps',
+          sub: 'Perform the pushing phase as fast as possible. Quality beats quantity every rep.',
+          exercises: [
+            { name: 'Plyometric Push-ups',        sets: '4 × 8',  note: 'Explode off the floor, soft landing' },
+            { name: 'Medicine Ball Chest Pass',   sets: '4 × 8',  note: 'Throw hard against a wall or partner' },
+            { name: 'Speed Bench (50% max)',      sets: '5 × 3',  note: 'Bar moves as fast as possible' },
+            { name: 'Push Press (Barbell)',       sets: '4 × 5',  note: 'Dip, drive, press' },
+            { name: 'Overhead Med Ball Slam',     sets: '3 × 8',  note: 'Full hip extension at top' },
+          ],
+          tip: 'Rest 2 min between sets. These moves train your nervous system — never train them to failure.',
+        },
+      },
+
+      pull: {
+        aesthetics: {
+          tag: 'Pull · Aesthetics',
+          heading: 'Back & Biceps',
+          sub: 'Feel every rep. Initiate all pulls with your back, not your arms.',
+          exercises: [
+            { name: 'Pull-ups (Bodyweight)',      sets: '4 × 10', note: 'Dead hang at bottom' },
+            { name: 'Seated Cable Row',           sets: '4 × 12', note: 'Squeeze shoulder blades together' },
+            { name: 'Single-Arm Dumbbell Row',    sets: '3 × 12', note: 'Elbow drives back, not out' },
+            { name: 'Face Pulls',                 sets: '3 × 20', note: 'External rotation at the end' },
+            { name: 'Barbell Curl',               sets: '3 × 12', note: 'No swinging' },
+            { name: 'Hammer Curl',                sets: '3 × 12', note: 'Neutral grip throughout' },
+          ],
+          tip: 'Rest 60–90 s. A strong mind-muscle connection here pays off quickly in visible back width.',
+        },
+        strength: {
+          tag: 'Pull · Strength',
+          heading: 'Back & Biceps',
+          sub: 'Deadlift heavy and pull hard. These are the biggest strength builders in the gym.',
+          exercises: [
+            { name: 'Conventional Deadlift',      sets: '5 × 5',  note: 'Brace hard, neutral spine' },
+            { name: 'Weighted Pull-ups',          sets: '4 × 5',  note: 'Add a plate if bodyweight is easy' },
+            { name: 'Barbell Bent-Over Row',      sets: '4 × 6',  note: 'Bar to lower chest' },
+            { name: 'Rack Pull',                  sets: '3 × 5',  note: 'Overload above the knee' },
+            { name: 'Kroc Row (Dumbbell)',        sets: '3 × 8',  note: 'Heavy, controlled pull' },
+          ],
+          tip: 'Rest 3–4 min after deadlifts. Log your lifts — small weekly increases add up fast.',
+        },
+        explosive: {
+          tag: 'Pull · Explosiveness',
+          heading: 'Back & Biceps',
+          sub: 'Violent hip extension and fast pulls. Great for athletes and anyone who wants to feel powerful.',
+          exercises: [
+            { name: 'Power Clean',                sets: '5 × 3',  note: 'Hips back, pull fast under the bar' },
+            { name: 'Explosive Pull-ups',         sets: '4 × 5',  note: 'Pull until chin clearly clears the bar' },
+            { name: 'Pendlay Row',                sets: '4 × 5',  note: 'From the floor, fast concentric' },
+            { name: 'Jump Shrug',                 sets: '3 × 8',  note: 'Full triple extension' },
+            { name: 'Band Pull-Aparts',           sets: '3 × 20', note: 'Keep arms straight' },
+          ],
+          tip: 'Rest 2–3 min. Power cleans are technical — start light and nail the form before adding weight.',
+        },
+      },
+
+      legs: {
+        strength: {
+          tag: 'Legs · Strength',
+          heading: 'Quads, Hamstrings\n& Glutes',
+          sub: 'Squat heavy and deadlift with intent. Leg strength carries over to everything.',
+          exercises: [
+            { name: 'Back Squat',                 sets: '5 × 5',  note: 'Break parallel, chest tall' },
+            { name: 'Romanian Deadlift',          sets: '4 × 6',  note: 'Push hips back, slight knee bend' },
+            { name: 'Leg Press',                  sets: '4 × 8',  note: 'Feet shoulder-width, full range' },
+            { name: 'Bulgarian Split Squat',      sets: '3 × 8',  note: 'Each leg; stay upright' },
+            { name: 'Standing Calf Raise',        sets: '4 × 12', note: 'Pause at the top' },
+          ],
+          tip: 'Rest 3–4 min after squats. Eat and sleep well — legs take more recovery than any other day.',
+        },
+        explosive: {
+          tag: 'Legs · Explosiveness',
+          heading: 'Quads, Hamstrings\n& Glutes',
+          sub: 'Develop fast-twitch power for sprinting, jumping, and athletic performance.',
+          exercises: [
+            { name: 'Box Jump',                   sets: '4 × 5',  note: 'Land softly, step down' },
+            { name: 'Power Clean',                sets: '4 × 3',  note: 'Driven by leg extension' },
+            { name: 'Jump Squat (Bodyweight)',    sets: '4 × 8',  note: 'Full squat, explode up' },
+            { name: 'Broad Jump',                 sets: '3 × 5',  note: 'Max horizontal distance' },
+            { name: 'Depth Jump',                 sets: '3 × 5',  note: 'Step off box, rebound immediately' },
+          ],
+          tip: 'Rest 2–3 min between sets. Never do plyometrics when fatigued — they need your full nervous system.',
+        },
+        endurance: {
+          tag: 'Legs · Endurance',
+          heading: 'Quads, Hamstrings\n& Glutes',
+          sub: 'High reps, short rest. Build work capacity, muscular stamina, and mental toughness.',
+          exercises: [
+            { name: 'Goblet Squat',               sets: '4 × 20', note: 'Light-moderate weight, steady pace' },
+            { name: 'Walking Lunges',             sets: '3 × 24', note: '12 steps each leg, continuous' },
+            { name: 'Leg Press (light)',           sets: '3 × 25', note: '40–50% max, controlled' },
+            { name: 'Leg Extension',              sets: '3 × 20', note: 'Squeeze at the top' },
+            { name: 'Leg Curl',                   sets: '3 × 20', note: 'Slow lowering phase' },
+            { name: 'Seated Calf Raise',          sets: '4 × 25', note: 'Full range, no bouncing' },
+          ],
+          tip: 'Keep rest to 45–60 s. You should feel a burn — lean into it. Pair with 10 min cardio at the end.',
+        },
+      },
+    };
+
+    let currentDay = null;
+
+    function goTo(screenId) {
+      document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none';
+      });
+      const target = document.getElementById('screen-' + screenId);
+      target.style.display = 'flex';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          target.classList.add('active');
+        });
+      });
+    }
+
+    function selectDay(day) {
+      currentDay = day;
+      const label = day.charAt(0).toUpperCase() + day.slice(1);
+      document.getElementById('goal-heading').textContent = label + ' Day';
+
+      const list = document.getElementById('goal-list');
+      list.innerHTML = '';
+      GOALS[day].forEach(goal => {
+        const btn = document.createElement('button');
+        btn.className = 'goal-btn';
+        btn.innerHTML = `
+          <div>
+            <div class="exercise-name">${goal.label}</div>
+            <span class="goal-meta">${goal.meta}</span>
+          </div>
+          <span class="arrow">→</span>
+        `;
+        btn.onclick = () => selectGoal(goal.id);
+        list.appendChild(btn);
+      });
+
+      goTo('goal');
+    }
+
+    function selectGoal(goalId) {
+      const w = WORKOUTS[currentDay][goalId];
+
+      document.getElementById('workout-tag').textContent = w.tag;
+      document.getElementById('workout-heading').innerHTML = w.heading.replace('\n', '<br>');
+      document.getElementById('workout-sub').textContent = w.sub;
+
+      const list = document.getElementById('exercise-list');
+      list.innerHTML = '';
+      w.exercises.forEach(ex => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.innerHTML = `
+          <div>
+            <div class="exercise-name">${ex.name}</div>
+            <div class="exercise-note">${ex.note}</div>
+          </div>
+          <span class="exercise-sets">${ex.sets}</span>
+        `;
+        list.appendChild(card);
+      });
+
+      const tip = document.getElementById('tip-card');
+      tip.innerHTML = `<strong>Coach tip</strong>${w.tip}`;
+
+      goTo('workout');
+    }
+
+    // Initial fade-in
+    window.addEventListener('DOMContentLoaded', () => {
+      const first = document.getElementById('screen-day');
+      first.style.display = 'flex';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          first.classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
