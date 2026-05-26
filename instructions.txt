@@ -1,0 +1,13 @@
+This website is a website for beginner lifters that is meant to plan workouts for them.
+
+V1:
+The home screen of the website only contains three buttons - push pull and legs. The user selects one button based on which day it is for them - push day pull day or leg day.
+
+Depending on the button which the user selects there should be three more corresponding options:
+ - Push: Choose between Asthetics, Strength, and Explosiveness
+ - Pull: Choose between Asthetics, Strength, and Explosiveness
+ - Legs: Choose between Strength, Explosiveness, and Endurance
+
+Then for each choice, the user should get a corresponding workout that fits with their choice.
+
+The website should be minimalistic and asthetically pleasing.
