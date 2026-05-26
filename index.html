@@ -36,7 +36,7 @@
       color: var(--ink);
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       padding: 24px;
     }
@@ -45,6 +45,8 @@
       width: 100%;
       max-width: 480px;
       position: relative;
+      margin-top: auto;
+      margin-bottom: auto;
     }
 
     /* --- Screens --- */
@@ -576,7 +578,7 @@
 
     <!-- Screen 6: AI Workout -->
     <div class="screen" id="screen-ai-workout">
-      <button class="back-btn" onclick="goTo('photo')">← Back</button>
+      <button class="back-btn" onclick="goTo('day')">← Home</button>
       <div class="wordmark">ppl.ai</div>
       <div class="workout-tag" id="ai-workout-tag"></div>
       <h1 class="heading">Your Tailored<br>Workout</h1>
@@ -837,23 +839,48 @@
 
     function goBackFromPhoto() {
       resetPhotoUpload();
-      goTo('goal');
+      goTo('day');
     }
 
     function processFile(file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        const dataUrl = e.target.result;
-        const [, base64] = dataUrl.split(',');
-        uploadedImageBase64 = base64;
-        uploadedImageType = file.type;
+        const img = new Image();
+        img.onload = () => {
+          const MAX_BYTES = 4 * 1024 * 1024; // 4 MB base64 target (well under 5 MB API limit)
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
 
-        const preview = document.getElementById('photo-preview');
-        preview.src = dataUrl;
-        preview.style.display = 'block';
-        document.getElementById('upload-placeholder').style.display = 'none';
-        document.getElementById('upload-area').classList.add('has-image');
-        document.getElementById('analyze-btn').disabled = false;
+          // Scale down if needed so compressed output stays small
+          const MAX_DIM = 1600;
+          if (width > MAX_DIM || height > MAX_DIM) {
+            const scale = Math.min(MAX_DIM / width, MAX_DIM / height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          canvas.width = width;
+          canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+          let quality = 0.85;
+          let dataUrl;
+          do {
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+            quality -= 0.1;
+          } while (dataUrl.length * 0.75 > MAX_BYTES && quality > 0.2);
+
+          const [, base64] = dataUrl.split(',');
+          uploadedImageBase64 = base64;
+          uploadedImageType = 'image/jpeg';
+
+          const preview = document.getElementById('photo-preview');
+          preview.src = dataUrl;
+          preview.style.display = 'block';
+          document.getElementById('upload-placeholder').style.display = 'none';
+          document.getElementById('upload-area').classList.add('has-image');
+          document.getElementById('analyze-btn').disabled = false;
+        };
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
