@@ -313,6 +313,178 @@
       margin-bottom: 6px;
     }
 
+    /* --- Upload Area --- */
+
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+
+    .upload-area:hover {
+      border-color: var(--ink);
+    }
+
+    .upload-area.has-image {
+      border-style: solid;
+      border-color: var(--ink);
+    }
+
+    .upload-placeholder {
+      text-align: center;
+      padding: 32px 20px;
+      pointer-events: none;
+    }
+
+    .upload-icon {
+      font-size: 30px;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .upload-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .upload-hint {
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .upload-preview {
+      width: 100%;
+      max-height: 520px;
+      object-fit: contain;
+      display: none;
+      background: var(--bg);
+    }
+
+    .upload-area.drag-over {
+      border-color: var(--ink);
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    /* --- Primary / Text Buttons --- */
+
+    .primary-btn {
+      background: var(--ink);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 18px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 16px;
+      letter-spacing: -0.01em;
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    .primary-btn:hover:not(:disabled) {
+      opacity: 0.85;
+    }
+
+    .primary-btn:active:not(:disabled) {
+      transform: scale(0.99);
+    }
+
+    .primary-btn:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+
+    .text-btn {
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--ink-muted);
+      cursor: pointer;
+      padding: 14px;
+      width: 100%;
+      margin-top: 4px;
+      transition: color var(--transition);
+      letter-spacing: -0.01em;
+    }
+
+    .text-btn:hover {
+      color: var(--ink);
+    }
+
+    /* --- Loading Screen --- */
+
+    .loading-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--ink);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin-bottom: 24px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-label {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .loading-sub {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+
+    /* --- AI Analysis Card --- */
+
+    .ai-analysis-card {
+      background: var(--ink);
+      color: #ffffff;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 16px;
+      animation: slideIn 0.3s ease both;
+    }
+
+    .ai-badge {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 8px;
+    }
+
+    .ai-analysis-text {
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
     /* --- Responsive --- */
 
     @media (max-width: 400px) {
@@ -359,7 +531,7 @@
       <div class="goal-list" id="goal-list"></div>
     </div>
 
-    <!-- Screen 3: Workout -->
+    <!-- Screen 3: Workout (static) -->
     <div class="screen" id="screen-workout">
       <button class="back-btn" onclick="goTo('goal')">← Back</button>
       <div class="wordmark">ppl.ai</div>
@@ -371,24 +543,71 @@
       <button class="back-btn back-btn-bottom" onclick="goTo('goal')">← Choose a different workout</button>
     </div>
 
+    <!-- Screen 4: Photo Upload -->
+    <div class="screen" id="screen-photo">
+      <button class="back-btn" onclick="goBackFromPhoto()">← Back</button>
+      <div class="wordmark">ppl.ai</div>
+      <h1 class="heading">Your Physique</h1>
+      <p class="subheading">Upload a photo and Claude will tailor your workout to your specific areas to improve.</p>
+
+      <div class="upload-area" id="upload-area" onclick="document.getElementById('photo-input').click()">
+        <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhotoSelect(event)">
+        <div class="upload-placeholder" id="upload-placeholder">
+          <span class="upload-icon">📷</span>
+          <div class="upload-text">Drag & drop or tap to select</div>
+          <div class="upload-hint">JPG or PNG</div>
+        </div>
+        <img id="photo-preview" class="upload-preview" alt="Your physique photo" />
+      </div>
+
+      <button class="primary-btn" id="analyze-btn" disabled onclick="analyzePhysique()">Analyze My Physique →</button>
+      <button class="text-btn" onclick="skipPhoto()">Skip — use standard workout</button>
+    </div>
+
+    <!-- Screen 5: Loading -->
+    <div class="screen" id="screen-loading">
+      <div class="wordmark">ppl.ai</div>
+      <div class="loading-body">
+        <div class="spinner"></div>
+        <div class="loading-label">Analyzing your physique</div>
+        <div class="loading-sub">This takes about 10–15 seconds</div>
+      </div>
+    </div>
+
+    <!-- Screen 6: AI Workout -->
+    <div class="screen" id="screen-ai-workout">
+      <button class="back-btn" onclick="goTo('photo')">← Back</button>
+      <div class="wordmark">ppl.ai</div>
+      <div class="workout-tag" id="ai-workout-tag"></div>
+      <h1 class="heading">Your Tailored<br>Workout</h1>
+      <p class="subheading">Built around your specific areas to develop.</p>
+      <div class="ai-analysis-card">
+        <span class="ai-badge">AI Analysis — Areas to Target</span>
+        <p class="ai-analysis-text" id="ai-analysis-text"></p>
+      </div>
+      <div class="exercise-list" id="ai-exercise-list"></div>
+      <div class="tip-card" id="ai-tip-card"></div>
+      <button class="back-btn back-btn-bottom" onclick="goTo('photo')">← Try a different photo</button>
+    </div>
+
   </div>
 
   <script>
     const GOALS = {
       push: [
-        { id: 'aesthetics', label: 'Aesthetics',   meta: 'Build size & definition' },
-        { id: 'strength',   label: 'Strength',     meta: 'Move more weight' },
+        { id: 'aesthetics', label: 'Aesthetics',    meta: 'Build size & definition · AI physique analysis' },
+        { id: 'strength',   label: 'Strength',      meta: 'Move more weight' },
         { id: 'explosive',  label: 'Explosiveness', meta: 'Power & speed' },
       ],
       pull: [
-        { id: 'aesthetics', label: 'Aesthetics',   meta: 'Build size & definition' },
-        { id: 'strength',   label: 'Strength',     meta: 'Move more weight' },
+        { id: 'aesthetics', label: 'Aesthetics',    meta: 'Build size & definition · AI physique analysis' },
+        { id: 'strength',   label: 'Strength',      meta: 'Move more weight' },
         { id: 'explosive',  label: 'Explosiveness', meta: 'Power & speed' },
       ],
       legs: [
-        { id: 'strength',   label: 'Strength',     meta: 'Move more weight' },
+        { id: 'strength',   label: 'Strength',      meta: 'Move more weight' },
         { id: 'explosive',  label: 'Explosiveness', meta: 'Power & speed' },
-        { id: 'endurance',  label: 'Endurance',    meta: 'Last longer, go further' },
+        { id: 'endurance',  label: 'Endurance',     meta: 'Last longer, go further' },
       ],
     };
 
@@ -524,6 +743,9 @@
     };
 
     let currentDay = null;
+    let currentGoal = null;
+    let uploadedImageBase64 = null;
+    let uploadedImageType = null;
 
     function goTo(screenId) {
       document.querySelectorAll('.screen').forEach(s => {
@@ -564,6 +786,18 @@
     }
 
     function selectGoal(goalId) {
+      currentGoal = goalId;
+
+      if (goalId === 'aesthetics' && (currentDay === 'push' || currentDay === 'pull')) {
+        resetPhotoUpload();
+        goTo('photo');
+        return;
+      }
+
+      showStaticWorkout(goalId);
+    }
+
+    function showStaticWorkout(goalId) {
       const w = WORKOUTS[currentDay][goalId];
 
       document.getElementById('workout-tag').textContent = w.tag;
@@ -591,7 +825,103 @@
       goTo('workout');
     }
 
-    // Initial fade-in
+    function resetPhotoUpload() {
+      uploadedImageBase64 = null;
+      uploadedImageType = null;
+      document.getElementById('photo-input').value = '';
+      document.getElementById('photo-preview').style.display = 'none';
+      document.getElementById('upload-placeholder').style.display = 'block';
+      document.getElementById('upload-area').classList.remove('has-image');
+      document.getElementById('analyze-btn').disabled = true;
+    }
+
+    function goBackFromPhoto() {
+      resetPhotoUpload();
+      goTo('goal');
+    }
+
+    function processFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        const [, base64] = dataUrl.split(',');
+        uploadedImageBase64 = base64;
+        uploadedImageType = file.type;
+
+        const preview = document.getElementById('photo-preview');
+        preview.src = dataUrl;
+        preview.style.display = 'block';
+        document.getElementById('upload-placeholder').style.display = 'none';
+        document.getElementById('upload-area').classList.add('has-image');
+        document.getElementById('analyze-btn').disabled = false;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handlePhotoSelect(event) {
+      const file = event.target.files[0];
+      if (file) processFile(file);
+    }
+
+    function skipPhoto() {
+      showStaticWorkout(currentGoal);
+    }
+
+    async function analyzePhysique() {
+      goTo('loading');
+
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageBase64: uploadedImageBase64,
+            mimeType: uploadedImageType,
+            day: currentDay,
+            goal: currentGoal,
+          }),
+        });
+
+        if (!response.ok) throw new Error('Server error ' + response.status);
+
+        const data = await response.json();
+        showAIWorkout(data);
+      } catch (err) {
+        console.error(err);
+        goTo('photo');
+        alert('Analysis failed — check that the server is running and your API key is set. You can skip to the standard workout instead.');
+      }
+    }
+
+    function showAIWorkout(data) {
+      const dayLabel = currentDay.charAt(0).toUpperCase() + currentDay.slice(1);
+      document.getElementById('ai-workout-tag').textContent = `${dayLabel} · Aesthetics · AI Tailored`;
+
+      document.getElementById('ai-analysis-text').textContent = data.weaknesses;
+
+      const list = document.getElementById('ai-exercise-list');
+      list.innerHTML = '';
+      data.exercises.forEach((ex, i) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.style.animationDelay = `${0.04 + i * 0.04}s`;
+        card.innerHTML = `
+          <div>
+            <div class="exercise-name">${ex.name}</div>
+            <div class="exercise-note">${ex.note}</div>
+          </div>
+          <span class="exercise-sets">${ex.sets}</span>
+        `;
+        list.appendChild(card);
+      });
+
+      const tip = document.getElementById('ai-tip-card');
+      tip.innerHTML = `<strong>AI Coach Tip</strong>${data.tip}`;
+
+      goTo('ai-workout');
+    }
+
+    // Initial fade-in + drag-and-drop wiring
     window.addEventListener('DOMContentLoaded', () => {
       const first = document.getElementById('screen-day');
       first.style.display = 'flex';
@@ -599,6 +929,26 @@
         requestAnimationFrame(() => {
           first.classList.add('active');
         });
+      });
+
+      const uploadArea = document.getElementById('upload-area');
+
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+      });
+
+      uploadArea.addEventListener('dragleave', (e) => {
+        if (!uploadArea.contains(e.relatedTarget)) {
+          uploadArea.classList.remove('drag-over');
+        }
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) processFile(file);
       });
     });
   </script>

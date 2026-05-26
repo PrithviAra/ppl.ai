@@ -11,3 +11,14 @@ Depending on the button which the user selects there should be three more corres
 Then for each choice, the user should get a corresponding workout that fits with their choice.
 
 The website should be minimalistic and asthetically pleasing.
+
+V2:
+
+For V2 we add AI functionality within the app. 
+
+Specific Physique Tailored Workouts (with Image Functionality):
+- If the user selects the Asthetic focus under either Push or Pull day they should have they option to input a photo of their physique (this is its own page, if the user does not wish to do so there should be a "skip" button)
+- After the user inputs a photo we call Claude and we include the image in a prompt to claude which is prompt engineered to get the best results
+- Claude first identifies specific areas to target based on the user's physique photo to help the user's physique improve. It then drafts a workout to target those specific areas
+- The actual website display should remain minamilistic and asthetically pleasing - just a high-level identification of weaknesses and then the workout for the user
+
