@@ -2,7 +2,7 @@
   "name": "ppl-ai",
   "version": "1.0.0",
   "scripts": {
-    "start": "node server.js"
+    "dev": "node server.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.26.0",
